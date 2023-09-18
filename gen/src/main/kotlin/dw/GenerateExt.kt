@@ -11,7 +11,7 @@ import dw.Names.vueOnEventClass
 import dw.Names.vueOnKeyClass
 import dw.Names.vueOnScrollClass
 import dw.Names.vueOnSubmitClass
-import java.nio.file.Path
+import java.nio.file.FileSystems
 
 object Names {
     val htmlTagClass = ClassName("kotlinx.html", "HTMLTag")
@@ -30,7 +30,7 @@ fun FileSpec.Builder.createHtmlTagMethod(name: String, vueAttribute: String = na
     return this.addFunction(FunSpec.builder(name)
         .receiver(htmlTagClass)
         .addParameter("statement", String::class)
-        .addStatement("attribute[\"%L\"] = statement", vueAttribute)
+        .addStatement("attributes[\"%L\"] = statement", vueAttribute)
         .build())
 }
 
@@ -61,7 +61,7 @@ fun TypeSpec.Builder.createConstructorWithTag(): TypeSpec.Builder {
 
 fun TypeSpec.Builder.createKeyedSetter(prefix: String): TypeSpec.Builder {
     return this.addFunction(FunSpec.builder("set")
-            .addModifiers(KModifier.OPERATOR, KModifier.OVERRIDE)
+            .addModifiers(KModifier.OPERATOR)
             .addParameter("key", String::class)
             .addParameter("statement", String::class)
             .addStatement("tag.attributes[\"%L:\$key\"] = statement", prefix)
@@ -106,8 +106,8 @@ fun TypeSpec.Builder.createDslGetterAndFun(name: String, event: String, type: Cl
             )
 }
 
-fun TypeSpec.Builder.createDslModifierGetterAndFun(name: String, vueModifier: String = name, comments: String? = null): TypeSpec.Builder {
-    val getterProperty = PropertySpec.builder(name, TypeVariableName("T"))
+fun TypeSpec.Builder.createDslModifierGetterAndFun(name: String, vueModifier: String = name, returnType: TypeName = TypeVariableName("T"), comments: String? = null): TypeSpec.Builder {
+    val getterProperty = PropertySpec.builder(name, returnType)
             .getter(
                     FunSpec.getterBuilder()
                             .addStatement("return with(\"%L\")", vueModifier)
@@ -120,7 +120,6 @@ fun TypeSpec.Builder.createDslModifierGetterAndFun(name: String, vueModifier: St
             .addProperty(getterProperty.build())
             .addFunction(
                     FunSpec.builder(name)
-                            .returns(TypeVariableName("T"))
                             .addParameter("statement", String::class)
                             .addStatement("%L.set(statement)", name)
                             .build()
@@ -182,7 +181,7 @@ fun builderOnEvent(type: ClassName, event: String): TypeSpec.Builder {
 
 fun main(args: Array<String>) {
     val writeOutput: (FileSpec) -> Unit = if (args.size == 2 && args[0] == "--output") {
-        val outputPath = Path.of(args[1])
+        val outputPath = FileSystems.getDefault().getPath(args[1])
         ({ file ->
             file.writeTo(outputPath)
         })
@@ -220,6 +219,24 @@ fun main(args: Array<String>) {
                                             )
                                             .build()
                             )
+                            .addProperty(
+                                    PropertySpec.builder("tag", htmlTagClass)
+                                            .initializer("tag")
+                                            .addModifiers(KModifier.PRIVATE)
+                                            .build()
+                            )
+                            .addProperty(
+                                    PropertySpec.builder("modifiers", Set::class.parameterizedBy(String::class))
+                                            .initializer("modifiers")
+                                            .addModifiers(KModifier.PRIVATE)
+                                            .build()
+                            )
+                            .addFunction(
+                                    FunSpec.builder("set")
+                                            .addParameter("statement", String::class)
+                                            .addStatement("tag.attributes[\"v-model\${modifiers.joinToString(\"\")}\"] = statement")
+                                            .build()
+                            )
                             .addFunction(
                                     FunSpec.builder("with")
                                             .returns(vueModelClass)
@@ -227,9 +244,9 @@ fun main(args: Array<String>) {
                                             .addStatement("return %T(tag, modifiers + \".\$modifier\")", vueModelClass)
                                             .build()
                             )
-                            .createDslModifierGetterAndFun("lazy")
-                            .createDslModifierGetterAndFun("number")
-                            .createDslModifierGetterAndFun("trim")
+                            .createDslModifierGetterAndFun("lazy", returnType = vueModelClass)
+                            .createDslModifierGetterAndFun("number", returnType = vueModelClass)
+                            .createDslModifierGetterAndFun("trim", returnType = vueModelClass)
                             .build()
             )
             .addType(
@@ -334,43 +351,43 @@ fun main(args: Array<String>) {
             )
             .addType(
                     builderOnEvent(vueOnClickClass, "click")
-                            .createDslModifierGetterAndFun("left")
-                            .createDslModifierGetterAndFun("right")
-                            .createDslModifierGetterAndFun("middle")
+                            .createDslModifierGetterAndFun("left", returnType = vueOnClickClass)
+                            .createDslModifierGetterAndFun("right", returnType = vueOnClickClass)
+                            .createDslModifierGetterAndFun("middle", returnType = vueOnClickClass)
                             .build()
             )
             .addType(
                     builderOnEvent(vueOnKeyClass)
-                            .createDslModifierGetterAndFun("enter")
-                            .createDslModifierGetterAndFun("tag")
-                            .createDslModifierGetterAndFun("delete")
-                            .createDslModifierGetterAndFun("esc")
-                            .createDslModifierGetterAndFun("space")
-                            .createDslModifierGetterAndFun("up")
-                            .createDslModifierGetterAndFun("down")
-                            .createDslModifierGetterAndFun("left")
-                            .createDslModifierGetterAndFun("right")
-                            .createDslModifierGetterAndFun("pageDown", "page-down")
+                            .createDslModifierGetterAndFun("enter", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("tab", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("delete", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("esc", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("space", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("up", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("down", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("left", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("right", returnType = vueOnKeyClass)
+                            .createDslModifierGetterAndFun("pageDown", "page-down", returnType = vueOnKeyClass)
                             .apply {
                                 // regular keys
                                 for (character in 'a'..'z') {
-                                    createDslModifierGetterAndFun("$character")
+                                    createDslModifierGetterAndFun("$character", returnType = vueOnKeyClass)
                                 }
                                 // function keys
                                 for (n in 1..20) {
-                                    createDslModifierGetterAndFun("F$n")
+                                    createDslModifierGetterAndFun("F$n", returnType = vueOnKeyClass)
                                 }
                                 // numeric keypad keys
                                 for (k in 0..9) {
-                                    createDslModifierGetterAndFun("keypad$k", k.toString())
+                                    createDslModifierGetterAndFun("keypad$k", k.toString(), returnType = vueOnKeyClass)
                                 }
-                                createDslModifierGetterAndFun("decimal")
-                                createDslModifierGetterAndFun("add")
-                                createDslModifierGetterAndFun("multiply")
-                                createDslModifierGetterAndFun("clear")
-                                createDslModifierGetterAndFun("divide")
-                                createDslModifierGetterAndFun("subtract")
-                                createDslModifierGetterAndFun("separator")
+                                createDslModifierGetterAndFun("decimal", returnType = vueOnKeyClass)
+                                createDslModifierGetterAndFun("add", returnType = vueOnKeyClass)
+                                createDslModifierGetterAndFun("multiply", returnType = vueOnKeyClass)
+                                createDslModifierGetterAndFun("clear", returnType = vueOnKeyClass)
+                                createDslModifierGetterAndFun("divide", returnType = vueOnKeyClass)
+                                createDslModifierGetterAndFun("subtract", returnType = vueOnKeyClass)
+                                createDslModifierGetterAndFun("separator", returnType = vueOnKeyClass)
                             }
                             .build()
             )

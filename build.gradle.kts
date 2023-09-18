@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform") version "1.9.0"
+    jacoco
 }
 
 group = "dw"
@@ -9,9 +10,17 @@ repositories {
     mavenCentral()
 }
 
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+val ktorVersion = "2.3.4"
+val jsoupVersion = "1.16.1"
+val assertjVersion = "3.24.2"
+
 val generatedCodePath = layout.buildDirectory.dir("generated-sources")
 
-tasks.register("generateCode", JavaExec::class) {
+val generateCode by tasks.registering(JavaExec::class) {
     group = "codeGenerate"
     classpath = project(":gen").sourceSets["main"].runtimeClasspath
     mainClass.set("dw.GenerateExtKt")
@@ -22,10 +31,10 @@ tasks.register("generateCode", JavaExec::class) {
         val sourceDir: File = generatedCodePath.get().asFile
         // ...
     }
-
 }
 
 kotlin {
+    jvmToolchain(8)
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
@@ -33,15 +42,6 @@ kotlin {
         withJava()
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
-        }
-    }
-    js(IR) {
-        browser {
-            commonWebpackConfig {
-                cssSupport {
-                    enabled.set(true)
-                }
-            }
         }
     }
     val hostOs = System.getProperty("os.name")
@@ -54,11 +54,11 @@ kotlin {
     }
 
     sourceSets {
-        val generatedMain by creating {
-            kotlin.srcDirs(generatedCodePath)
-        }
         val commonMain by getting {
-            dependsOn(generatedMain)
+            kotlin.srcDir(generatedCodePath)
+            dependencies {
+                implementation("io.ktor:ktor-server-html-builder:${ktorVersion}")
+            }
         }
         val commonTest by getting {
             dependencies {
@@ -66,10 +66,40 @@ kotlin {
             }
         }
         val jvmMain by getting
-        val jvmTest by getting
-        val jsMain by getting
-        val jsTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation("io.ktor:ktor-server-tests:${ktorVersion}")
+                implementation("org.jsoup:jsoup:${jsoupVersion}")
+                implementation("org.assertj:assertj-core:${assertjVersion}")
+            }
+        }
         val nativeMain by getting
         val nativeTest by getting
+    }
+}
+
+tasks["compileKotlinJvm"].dependsOn(generateCode)
+tasks["compileKotlinNative"].dependsOn(generateCode)
+
+val jacocoTestReport by tasks.getting(JacocoReport::class) {
+    val coverageSourceDirs = arrayOf(
+        generatedCodePath,
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin"
+    )
+
+    val classFiles = File("${buildDir}/classes/kotlin/jvm/")
+        .walkBottomUp()
+        .toSet()
+
+    classDirectories.setFrom(classFiles)
+    sourceDirectories.setFrom(files(coverageSourceDirs))
+
+    executionData
+        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
     }
 }

@@ -21,45 +21,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-
-//sourceSets {
-////    main {
-////        java.srcDir("src/genBaseMain")
-////        java {
-////            setSrcDirs(listOf("genBaseMain"))
-////        }
-////    }
-//    create("generator") {
-////        kotlin.
-//        java.srcDir("src/generator/java")
-//    }
-//}
-
-kotlin { // Extension for easy setup
-    jvmToolchain(17)
-
-//    sourceSets {
-//        val jvmMain by getting {
-////            kotlin.srcDir("src/generator/kotlin")
-//            dependencies {
-//                implementation("com.squareup:kotlinpoet:1.14.2") {
-//                    exclude(module = "kotlin-reflect")
-//                }
-//            }
-//        }
-//    }
+kotlin {
+    jvmToolchain(8)
 }
-
-//tasks.register("generateCode", JavaExec::class) {
-//    group = "codeGenerate"
-//    classpath = sourceSets["generator"].runtimeClasspath
-//    mainClass.set("dw.GenerateExt")
-//    val output = layout.buildDirectory.dir("generated-sources")
-//    outputs.dir(output)
-//
-//    doLast {
-//        val sourceDir: File = output.get().asFile
-//        // ...
-//    }
-//    dependsOn("generatorClasses")
-//}
