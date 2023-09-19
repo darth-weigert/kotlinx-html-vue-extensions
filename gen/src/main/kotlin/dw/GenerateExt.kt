@@ -6,6 +6,7 @@ import dw.Names.htmlTagClass
 import dw.Names.vueOnClass
 import dw.Names.vueBindClass
 import dw.Names.vueModelClass
+import dw.Names.vueOnBlurClass
 import dw.Names.vueOnClickClass
 import dw.Names.vueOnEventClass
 import dw.Names.vueOnKeyClass
@@ -23,6 +24,7 @@ object Names {
     val vueOnSubmitClass = ClassName("dw.ktor.html.vue", "VueOnSubmit")
     val vueOnScrollClass = ClassName("dw.ktor.html.vue", "VueOnScroll")
     val vueOnKeyClass = ClassName("dw.ktor.html.vue", "VueOnKey")
+    val vueOnBlurClass = ClassName("dw.ktor.html.vue", "VueOnBlur")
     val vueModelClass = ClassName("dw.ktor.html.vue", "VueModel")
 }
 
@@ -264,6 +266,7 @@ fun main(args: Array<String>) {
                             .createDslGetterAndFun("scroll", vueOnScrollClass)
                             .createDslGetterAndFun("keyUp", "keyup", vueOnKeyClass)
                             .createDslGetterAndFun("keyDown", "keydown", vueOnKeyClass)
+                            .createDslGetterAndFun("blur", vueOnBlurClass)
                             .build()
             )
             .addType(
@@ -389,6 +392,10 @@ fun main(args: Array<String>) {
                                 createDslModifierGetterAndFun("subtract", returnType = vueOnKeyClass)
                                 createDslModifierGetterAndFun("separator", returnType = vueOnKeyClass)
                             }
+                            .build()
+            )
+            .addType(
+                    builderOnEvent(vueOnBlurClass, "blur")
                             .build()
             )
             .build()

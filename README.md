@@ -119,6 +119,25 @@ button {
 }
 ```
 
+On keyboard events (`v-on:keydown` and `v-on:keyup`):
+
+```kotlin
+input {
+    type = InputType.text
+    vueOn.keyDown.enter("callback")
+    vueOn.keyUp.delete("callback")
+}
+```
+
+On focus lost (`v-on:blur`):
+
+```kotlin
+input {
+    type = InputType.text
+    vueOn.blur("console.log('Focus lost!')")
+}
+```
+
 And for `v-bind`, we have a special syntax:
 
 ```kotlin
@@ -138,6 +157,11 @@ form {
 
 button {
     vueOn.click.ctrl.left("callback")
+}
+
+input {
+    vueOn.keyDown.enter.alt("console.log('alt+enter')")
+    vueOn.keyUp.altGraph.delete.exact("console.log('altGraph+delete')")
 }
 ```
 
