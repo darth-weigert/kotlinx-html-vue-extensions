@@ -148,7 +148,7 @@ a {
 
 ## Modifiers
 
-You can chain modifiers after he main binding:
+You can chain modifiers after the main binding:
 
 ```kotlin
 form {
