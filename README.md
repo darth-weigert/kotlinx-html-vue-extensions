@@ -162,3 +162,11 @@ And the reports will be available at:
 
 * build/reports/jacoco/test/html/index.html
 * build/reports/jacoco/test/jacocoTestReport.xml
+
+## Publishing
+
+To publish to the local repository, run:
+
+```shell
+./gradlew publishToMavenLocal
+```

@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform") version "1.9.0"
     jacoco
+    id("maven-publish")
 }
 
 group = "dw"
