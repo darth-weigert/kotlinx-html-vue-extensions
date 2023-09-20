@@ -1,4 +1,4 @@
 
-rootProject.name = "ktor-html-vue-extensions"
+rootProject.name = "kotlinx-html-vue-extensions"
 include("gen")
 

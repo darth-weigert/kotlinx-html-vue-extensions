@@ -9,23 +9,27 @@ import dw.Names.vueModelClass
 import dw.Names.vueOnBlurClass
 import dw.Names.vueOnClickClass
 import dw.Names.vueOnEventClass
+import dw.Names.vueOnFocusClass
 import dw.Names.vueOnKeyClass
 import dw.Names.vueOnScrollClass
 import dw.Names.vueOnSubmitClass
 import java.nio.file.FileSystems
 
+const val packageName = "dw.html.vue"
+
 object Names {
     val htmlTagClass = ClassName("kotlinx.html", "HTMLTag")
 
-    val vueBindClass = ClassName("dw.ktor.html.vue", "VueBind")
-    val vueOnClass = ClassName("dw.ktor.html.vue", "VueOn")
-    val vueOnEventClass = ClassName("dw.ktor.html.vue", "VueOnEvent")
-    val vueOnClickClass = ClassName("dw.ktor.html.vue", "VueOnClick")
-    val vueOnSubmitClass = ClassName("dw.ktor.html.vue", "VueOnSubmit")
-    val vueOnScrollClass = ClassName("dw.ktor.html.vue", "VueOnScroll")
-    val vueOnKeyClass = ClassName("dw.ktor.html.vue", "VueOnKey")
-    val vueOnBlurClass = ClassName("dw.ktor.html.vue", "VueOnBlur")
-    val vueModelClass = ClassName("dw.ktor.html.vue", "VueModel")
+    val vueBindClass = ClassName(packageName, "VueBind")
+    val vueOnClass = ClassName(packageName, "VueOn")
+    val vueOnEventClass = ClassName(packageName, "VueOnEvent")
+    val vueOnClickClass = ClassName(packageName, "VueOnClick")
+    val vueOnSubmitClass = ClassName(packageName, "VueOnSubmit")
+    val vueOnScrollClass = ClassName(packageName, "VueOnScroll")
+    val vueOnKeyClass = ClassName(packageName, "VueOnKey")
+    val vueOnBlurClass = ClassName(packageName, "VueOnBlur")
+    val vueOnFocusClass = ClassName(packageName, "VueOnFocus")
+    val vueModelClass = ClassName(packageName, "VueModel")
 }
 
 fun FileSpec.Builder.createHtmlTagMethod(name: String, vueAttribute: String = name): FileSpec.Builder {
@@ -192,7 +196,7 @@ fun main(args: Array<String>) {
             file.writeTo(System.out)
         }
     }
-    val file = FileSpec.builder("dw.ktor.html.vue", "Ext")
+    val file = FileSpec.builder(packageName, "Ext")
             .createHtmlTagMethod("ref")
             .createHtmlTagMethod("vueShow", "v-show")
             .createHtmlTagMethod("vueHtml", "v-html")
@@ -267,6 +271,7 @@ fun main(args: Array<String>) {
                             .createDslGetterAndFun("keyUp", "keyup", vueOnKeyClass)
                             .createDslGetterAndFun("keyDown", "keydown", vueOnKeyClass)
                             .createDslGetterAndFun("blur", vueOnBlurClass)
+                            .createDslGetterAndFun("focus", vueOnFocusClass)
                             .build()
             )
             .addType(
@@ -396,6 +401,10 @@ fun main(args: Array<String>) {
             )
             .addType(
                     builderOnEvent(vueOnBlurClass, "blur")
+                            .build()
+            )
+            .addType(
+                    builderOnEvent(vueOnFocusClass, "focus")
                             .build()
             )
             .build()

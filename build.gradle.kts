@@ -15,9 +15,11 @@ jacoco {
     toolVersion = "0.8.10"
 }
 
+val kotlinxHtmlVersion = "0.9.1"
 val ktorVersion = "2.3.4"
 val jsoupVersion = "1.16.1"
 val assertjVersion = "3.24.2"
+val kotestVersion = "5.7.2"
 
 val generatedCodePath = layout.buildDirectory.dir("generated-sources")
 
@@ -45,6 +47,15 @@ kotlin {
             useJUnitPlatform()
         }
     }
+    js(IR) {
+        browser {
+            commonWebpackConfig(Action {
+                cssSupport {
+                    enabled.set(true)
+                }
+            })
+        }
+    }
     val hostOs = System.getProperty("os.name")
     val isMingwX64 = hostOs.startsWith("Windows")
     val nativeTarget = when {
@@ -58,7 +69,7 @@ kotlin {
         val commonMain by getting {
             kotlin.srcDir(generatedCodePath)
             dependencies {
-                implementation("io.ktor:ktor-server-html-builder:${ktorVersion}")
+                implementation("org.jetbrains.kotlinx:kotlinx-html:${kotlinxHtmlVersion}")
             }
         }
         val commonTest by getting {
@@ -70,8 +81,15 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation("io.ktor:ktor-server-tests:${ktorVersion}")
+                implementation("io.ktor:ktor-server-html-builder:${ktorVersion}")
                 implementation("org.jsoup:jsoup:${jsoupVersion}")
-                implementation("org.assertj:assertj-core:${assertjVersion}")
+                implementation("io.kotest:kotest-assertions-core:${kotestVersion}")
+            }
+        }
+        val jsMain by getting
+        val jsTest by getting {
+            dependencies {
+                implementation("io.kotest:kotest-assertions-core:${kotestVersion}")
             }
         }
         val nativeMain by getting
@@ -79,6 +97,7 @@ kotlin {
     }
 }
 
+tasks["compileKotlinJs"].dependsOn(generateCode)
 tasks["compileKotlinJvm"].dependsOn(generateCode)
 tasks["compileKotlinNative"].dependsOn(generateCode)
 

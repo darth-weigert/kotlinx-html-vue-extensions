@@ -1,5 +1,6 @@
-package dw.ktor.html.vue
+package dw.html.vue
 
+import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -8,7 +9,6 @@ import io.ktor.server.html.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.html.*
-import org.assertj.core.api.Assertions.assertThat
 import org.jsoup.Jsoup
 import kotlin.test.Test
 
@@ -23,10 +23,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<a v-bind:href=\"variable\"></a>")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<a v-bind:href=\"variable\"></a>"
     }
 
     @Test
@@ -39,10 +37,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<button v-on:click.ctrl.left=\"callback\"></button>")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<button v-on:click.ctrl.left=\"callback\"></button>"
     }
 
     @Test
@@ -55,10 +51,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<button v-on:click.alt.middle=\"callback\"></button>")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<button v-on:click.alt.middle=\"callback\"></button>"
     }
 
     @Test
@@ -71,10 +65,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<button v-on:click.shift.right=\"callback\"></button>")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<button v-on:click.shift.right=\"callback\"></button>"
     }
 
     @Test
@@ -87,10 +79,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<button v-on:keyup.exact.enter=\"callback\"></button>")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<button v-on:keyup.exact.enter=\"callback\"></button>"
     }
 
     @Test
@@ -103,10 +93,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<button v-on:keydown.stop.capture.ctrl.a=\"callback\"></button>")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<button v-on:keydown.stop.capture.ctrl.a=\"callback\"></button>"
     }
 
     @Test
@@ -119,10 +107,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<input v-model.lazy.number.trim=\"variable\">")
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<input v-model.lazy.number.trim=\"variable\">"
     }
 
     @Test
@@ -144,12 +130,10 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<p v-if=\"condition1\">First</p>\n" +
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<p v-if=\"condition1\">First</p>\n" +
                     "<p v-else-if=\"condition2\">Second</p>\n" +
-                    "<p v-else=\"\">Third</p>")
+                    "<p v-else=\"\">Third</p>"
     }
 
     @Test
@@ -198,10 +182,8 @@ class ExtTest {
 
         val response = client.get("/vue")
 
-        assertThat(response.status)
-            .isEqualTo(HttpStatusCode.OK)
-        assertThat(bodyOf(response))
-            .isEqualTo("<form v-on:submit.prevent=\"submit\">\n" +
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<form v-on:submit.prevent=\"submit\">\n" +
                     " <input type=\"email\" v-model=\"form.email\">" +
                     "<textarea v-model=\"form.description\"></textarea>" +
                     "<select v-model=\"form.city\">" +
@@ -212,7 +194,22 @@ class ExtTest {
                     "<input type=\"radio\" value=\"weekly\" v-model=\"form.interval\">" +
                     "<input type=\"radio\" value=\"monthly\" v-model=\"form.interval\">" +
                     "<button type=\"submit\">Submit</button>\n" +
-                    "</form>")
+                    "</form>"
+    }
+
+    @Test
+    fun vueOnBlurOnFocus() = testApplication {
+        bodyFixture {
+            input {
+                vueOn.blur("blurHandler")
+                vueOn.focus("focusHandler")
+            }
+        }
+
+        val response = client.get("/vue")
+
+        response.status shouldBe HttpStatusCode.OK
+        bodyOf(response) shouldBe "<input v-on:blur=\"blurHandler\" v-on:focus=\"focusHandler\">"
     }
 
     private fun ApplicationTestBuilder.bodyFixture(block: BODY.() -> Unit) {

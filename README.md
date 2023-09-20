@@ -1,8 +1,8 @@
-# Vue.js extensions for ktor-server-html-builder
+# Vue.js extensions for kotlinx.html
 
-This library adds vue.js extensions to ktor's html dsl.
+This library adds vue.js extensions to kotlinx.html DSL. Can be used to render server-side using `ktor-server-html-builder` or on the client side using the library directly.
 
-This code:
+This code, when added to a ktor server:
 
 ```kotlin
 fun Application.configureTemplating() {
@@ -119,7 +119,7 @@ button {
 }
 ```
 
-On keyboard events (`v-on:keydown` and `v-on:keyup`):
+Keyboard event handling (`v-on:keydown` and `v-on:keyup`):
 
 ```kotlin
 input {
@@ -129,11 +129,12 @@ input {
 }
 ```
 
-On focus lost (`v-on:blur`):
+Focus handling (`v-on:focus` and `v-on:blur`):
 
 ```kotlin
 input {
     type = InputType.text
+    vueOn.focus("console.log('Focus received!')")
     vueOn.blur("console.log('Focus lost!')")
 }
 ```
