@@ -75,25 +75,27 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.kotest:kotest-assertions-core:${kotestVersion}")
+            }
+        }
+        val ktorTest by creating {
+            dependsOn(commonTest)
+            kotlin.srcDir("src/ktorTest/kotlin")
+            dependencies {
+                implementation("io.ktor:ktor-server-tests:${ktorVersion}")
+                implementation("io.ktor:ktor-server-html-builder:${ktorVersion}")
             }
         }
         val jvmMain by getting
         val jvmTest by getting {
-            dependencies {
-                implementation("io.ktor:ktor-server-tests:${ktorVersion}")
-                implementation("io.ktor:ktor-server-html-builder:${ktorVersion}")
-                implementation("org.jsoup:jsoup:${jsoupVersion}")
-                implementation("io.kotest:kotest-assertions-core:${kotestVersion}")
-            }
+            dependsOn(ktorTest)
         }
         val jsMain by getting
-        val jsTest by getting {
-            dependencies {
-                implementation("io.kotest:kotest-assertions-core:${kotestVersion}")
-            }
-        }
+        val jsTest by getting
         val nativeMain by getting
-        val nativeTest by getting
+        val nativeTest by getting {
+            dependsOn(ktorTest)
+        }
     }
 }
 
@@ -104,8 +106,6 @@ tasks["compileKotlinNative"].dependsOn(generateCode)
 val jacocoTestReport by tasks.getting(JacocoReport::class) {
     val coverageSourceDirs = arrayOf(
         generatedCodePath,
-        "src/commonMain/kotlin",
-        "src/jvmMain/kotlin"
     )
 
     val classFiles = File("${buildDir}/classes/kotlin/jvm/")

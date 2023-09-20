@@ -3,10 +3,9 @@ package dw.html.vue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlinx.html.*
-import kotlinx.html.consumers.DelayedConsumer
-import kotlinx.html.stream.HTMLStreamBuilder
+import kotlinx.html.stream.appendHTML
 
-class JsExtTest {
+class ExtTest {
 
     @Test
     fun vueIfElseIfElse() {
@@ -30,9 +29,8 @@ class JsExtTest {
     }
 
     private fun htmlString(block: TagConsumer<*>.() -> Unit): String {
-        val text = StringBuilder()
-        val stream = DelayedConsumer(HTMLStreamBuilder(text, false, false))
-        block.invoke(stream)
-        return text.toString()
+        return buildString {
+            block(appendHTML(prettyPrint = false))
+        }
     }
 }

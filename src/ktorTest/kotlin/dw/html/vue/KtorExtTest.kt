@@ -4,15 +4,17 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
-import io.ktor.server.html.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
+import io.ktor.utils.io.charsets.*
 import kotlinx.html.*
-import org.jsoup.Jsoup
+import kotlinx.html.stream.appendHTML
 import kotlin.test.Test
 
-class ExtTest {
+class KtorExtTest {
     @Test
     fun vueBind() = testApplication {
         bodyFixture {
@@ -131,8 +133,8 @@ class ExtTest {
         val response = client.get("/vue")
 
         response.status shouldBe HttpStatusCode.OK
-        bodyOf(response) shouldBe "<p v-if=\"condition1\">First</p>\n" +
-                    "<p v-else-if=\"condition2\">Second</p>\n" +
+        bodyOf(response) shouldBe "<p v-if=\"condition1\">First</p>" +
+                    "<p v-else-if=\"condition2\">Second</p>" +
                     "<p v-else=\"\">Third</p>"
     }
 
@@ -183,8 +185,8 @@ class ExtTest {
         val response = client.get("/vue")
 
         response.status shouldBe HttpStatusCode.OK
-        bodyOf(response) shouldBe "<form v-on:submit.prevent=\"submit\">\n" +
-                    " <input type=\"email\" v-model=\"form.email\">" +
+        bodyOf(response) shouldBe "<form v-on:submit.prevent=\"submit\">" +
+                    "<input type=\"email\" v-model=\"form.email\">" +
                     "<textarea v-model=\"form.description\"></textarea>" +
                     "<select v-model=\"form.city\">" +
                     "<option value=\"new-york\">New York</option>" +
@@ -193,7 +195,7 @@ class ExtTest {
                     "<input type=\"checkbox\" v-model=\"form.subscribe\">" +
                     "<input type=\"radio\" value=\"weekly\" v-model=\"form.interval\">" +
                     "<input type=\"radio\" value=\"monthly\" v-model=\"form.interval\">" +
-                    "<button type=\"submit\">Submit</button>\n" +
+                    "<button type=\"submit\">Submit</button>" +
                     "</form>"
     }
 
@@ -226,7 +228,15 @@ class ExtTest {
 
 }
 
+suspend fun ApplicationCall.respondHtml(status: HttpStatusCode = HttpStatusCode.OK, block: HTML.() -> Unit) {
+    val text = buildString {
+        append("<!DOCTYPE html>\n")
+        appendHTML(prettyPrint = false).html(block = block)
+    }
+    respond(TextContent(text, ContentType.Text.Html.withCharset(Charsets.UTF_8), status))
+}
+
 suspend fun bodyOf(response: HttpResponse): String {
-    val document = Jsoup.parse(response.bodyAsText())
-    return document.getElementsByTag("body")[0].children().toString()
+    val document = response.bodyAsText()
+    return document.substringAfter("<body>").substringBefore("</body>").trim()
 }
