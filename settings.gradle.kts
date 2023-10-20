@@ -1,4 +1,4 @@
 
 rootProject.name = "kotlinx-html-vue-extensions"
-include("gen")
-
+include("gen-ext")
+include("gen-vue")

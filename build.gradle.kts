@@ -1,7 +1,10 @@
+import org.gradle.api.Action
+
 plugins {
     kotlin("multiplatform") version "1.9.0"
     jacoco
     id("maven-publish")
+    id("org.ajoberstar.grgit") version "5.2.0"
 }
 
 group = "dw"
@@ -17,24 +20,39 @@ jacoco {
 
 val kotlinxHtmlVersion = "0.9.1"
 val ktorVersion = "2.3.4"
-val jsoupVersion = "1.16.1"
 val assertjVersion = "3.24.2"
 val kotestVersion = "5.7.2"
 
-val generatedCodePath = layout.buildDirectory.dir("generated-sources")
+val generatedCommonCodePath = layout.buildDirectory.dir("generated-sources/common/kotlin")
+//val generatedJsCodePath = layout.buildDirectory.dir("generated-sources/js/kotlin")
 
-val generateCode by tasks.registering(JavaExec::class) {
+val generateExtCode by tasks.registering(JavaExec::class) {
     group = "codeGenerate"
-    classpath = project(":gen").sourceSets["main"].runtimeClasspath
+    classpath = project(":gen-ext").sourceSets["main"].runtimeClasspath
     mainClass.set("dw.GenerateExtKt")
-    outputs.dir(generatedCodePath)
-    args = listOf("--output", generatedCodePath.get().asFile.toString())
-
-    doLast {
-        val sourceDir: File = generatedCodePath.get().asFile
-        // ...
-    }
+    outputs.dir(generatedCommonCodePath)
+    args = listOf("--output", generatedCommonCodePath.get().asFile.toString())
 }
+
+//val generateVueBindingsCode by tasks.registering(Exec::class) {
+//    group = "codeGenerate"
+//    outputs.dir(generatedJsCodePath)
+//
+//    val tempPath = childProjects["gen-vue"]!!.layout.buildDirectory.dir("vue-conversion")
+//
+////    commandLine = listOf("node", layout.buildDirectory.file("js/node_modules/.bin/dukat").get().toString(),
+////        "-p", "dw",
+////        "-d", generatedJsCodePath.get().toString(),
+////        layout.buildDirectory.file("js/node_modules/vue/dist/vue.d.ts").get().toString())
+//    commandLine("node", tempPath.get().file("node_modules/.bin/dukat"),
+//        "-p", "dw",
+//        "-d", generatedJsCodePath.get(),
+//        tempPath.get().file("node_modules/vue/dist/vue.d.ts"))
+//
+//    println(commandLine)
+//
+//    dependsOn(":gen-vue:installNpmPackages")
+//}
 
 kotlin {
     jvmToolchain(8)
@@ -50,9 +68,14 @@ kotlin {
     js(IR) {
         browser {
             commonWebpackConfig(Action {
-                cssSupport {
-                    enabled.set(true)
+            })
+            testTask(Action {
+                useKarma {
+                    useChrome()
                 }
+            })
+            webpackTask(Action {
+
             })
         }
     }
@@ -67,7 +90,7 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir(generatedCodePath)
+            kotlin.srcDir(generatedCommonCodePath)
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html:${kotlinxHtmlVersion}")
             }
@@ -90,8 +113,23 @@ kotlin {
         val jvmTest by getting {
             dependsOn(ktorTest)
         }
-        val jsMain by getting
-        val jsTest by getting
+        val jsMain by getting {
+//            kotlin.srcDir(generatedJsCodePath)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-html:${kotlinxHtmlVersion}")
+                implementation(npm("vue", "3.3.4"))
+            }
+        }
+        val vueTestUtils by creating {
+            dependsOn(jsMain)
+            kotlin.srcDir("src/vueTestUtils/kotlin")
+            dependencies {
+                implementation(npm("@vue/test-utils", "2.4.1"))
+            }
+        }
+        val jsTest by getting {
+            dependsOn(vueTestUtils)
+        }
         val nativeMain by getting
         val nativeTest by getting {
             dependsOn(ktorTest)
@@ -99,13 +137,19 @@ kotlin {
     }
 }
 
-tasks["compileKotlinJs"].dependsOn(generateCode)
-tasks["compileKotlinJvm"].dependsOn(generateCode)
-tasks["compileKotlinNative"].dependsOn(generateCode)
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().all {
+    when(name) {
+        "compileCommonMainKotlinMetadata" -> dependsOn(generateExtCode)
+        "compileKotlinJs" -> dependsOn(generateExtCode/*, generateVueBindingsCode*/)
+        "compileKotlinJvm" -> dependsOn(generateExtCode)
+        "compileKotlinNative" -> dependsOn(generateExtCode)
+//        "kotlinNpmInstall" -> dependsOn(generateDukat)
+    }
+}
 
 val jacocoTestReport by tasks.getting(JacocoReport::class) {
     val coverageSourceDirs = arrayOf(
-        generatedCodePath,
+        generatedCommonCodePath,
     )
 
     val classFiles = File("${buildDir}/classes/kotlin/jvm/")
