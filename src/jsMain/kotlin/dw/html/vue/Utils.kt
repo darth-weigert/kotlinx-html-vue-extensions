@@ -2,7 +2,6 @@ package dw.html.vue
 
 import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
-import kotlinx.browser.document
 import kotlinx.html.TagConsumer
 import kotlinx.html.dom.create
 
