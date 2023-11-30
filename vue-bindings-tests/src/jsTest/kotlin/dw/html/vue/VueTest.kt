@@ -19,6 +19,7 @@ class VueTest {
                 }
             }
         }
+        println(js("JSON.stringify(component)"))
         val options = create<ComponentMountingOptions<Any>> {
             props = json("msg" to msg)
         }

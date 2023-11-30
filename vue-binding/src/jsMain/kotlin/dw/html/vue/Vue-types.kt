@@ -8,6 +8,8 @@ external interface ComponentPublicInstance
 
 typealias VoidFunction = () -> Unit
 
+typealias ComputedGetter<T> = () -> T
+
 external class DebuggerEvent {
     var effect: Any
     var target: Any
@@ -115,7 +117,7 @@ external interface AppConfig {
 external interface App {
     var version: String
     var config: AppConfig
-    //    use<Options extends unknown[]>(plugin: Plugin<Options>, ...options: Options): this;
+//    use<Options extends unknown[]>(plugin: Plugin<Options>, ...options: Options): this;
 //    use<Options>(plugin: Plugin<Options>, options: Options): this;
 //    mixin(mixin: ComponentOptions): this;
 //    component(name: string): Component | undefined;

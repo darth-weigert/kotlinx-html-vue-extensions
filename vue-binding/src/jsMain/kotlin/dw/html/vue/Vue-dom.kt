@@ -1,5 +1,5 @@
-@file:JsModule("vue")
-@file:JsNonModule
+//@file:JsModule("vue")
+//@file:JsNonModule
 
 package dw.html.vue
 

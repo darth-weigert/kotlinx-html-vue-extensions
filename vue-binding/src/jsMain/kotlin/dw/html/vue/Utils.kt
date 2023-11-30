@@ -4,6 +4,7 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 import kotlinx.html.TagConsumer
 import kotlinx.html.dom.create
+import kotlinx.html.stream.appendHTML
 
 fun <T>create(block: T.() -> Unit): T {
     return (js("{}") as T).apply(block)
@@ -25,4 +26,7 @@ fun buildTemplate(block: TagConsumer<*>.() -> Unit): HTMLElement {
     val html = document.create
     block(html)
     return html.finalize()
+//    return buildString {
+//        block(appendHTML(prettyPrint = false))
+//    }
 }

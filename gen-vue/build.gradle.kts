@@ -2,7 +2,7 @@ import org.ajoberstar.grgit.Grgit
 
 plugins {
     base
-    id("org.ajoberstar.grgit") version "5.2.0"
+    id("org.ajoberstar.grgit")
 }
 
 group = "dw"
