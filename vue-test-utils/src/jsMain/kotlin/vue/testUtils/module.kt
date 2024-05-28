@@ -4,6 +4,8 @@
 package vue.testUtils
 
 import dw.html.vue.Record
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 
 external interface BaseMountingOptions<Props, Data> {
     @JsName("data")
@@ -26,11 +28,17 @@ external interface ComponentMountingOptions<C>: MountingOptions<C, Any> {
 
 }
 
-external interface BaseWrapper {
+external interface DOMWrapper<T : Element> : BaseWrapper<T> {
+
+}
+
+external interface BaseWrapper<ElementType : Node> {
+    fun <T : Element> find(selector: String): DOMWrapper<T>
+    fun <T : Element> findAll(selector: String): Array<DOMWrapper<T>>
     fun text(): String
 }
 
-external interface VueWrapper: BaseWrapper {
+external interface VueWrapper: BaseWrapper<Node> {
 
 }
 
