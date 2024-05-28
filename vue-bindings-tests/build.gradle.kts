@@ -26,7 +26,8 @@ kotlin {
 //
 //            })
         }
-        binaries.library()
+//        binaries.library()
+//        binaries.executable()
     }
     sourceSets {
         val jsTest by getting {

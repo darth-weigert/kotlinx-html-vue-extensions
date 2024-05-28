@@ -45,12 +45,13 @@ kotlin {
                 }
             })
             webpackTask(Action {
-                mainOutputFileName.set("mycustomfilename.js")
-                output.libraryTarget = "commonjs2"
+//                mainOutputFileName.set("mycustomfilename.js")
+//                output.libraryTarget = "commonjs2"
 
             })
         }
-        binaries.library()
+//        binaries.library()
+//        binaries.executable()
     }
     val hostOs = System.getProperty("os.name")
     val isMingwX64 = hostOs.startsWith("Windows")

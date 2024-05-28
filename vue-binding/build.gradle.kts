@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    id("maven-publish")
 }
 
 group = "dw"
@@ -27,7 +28,8 @@ kotlin {
 
             })
         }
-        binaries.library()
+//        binaries.library()
+//        binaries.executable()
     }
     sourceSets {
         val jsMain by getting {
