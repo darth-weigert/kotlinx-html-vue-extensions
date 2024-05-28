@@ -1,9 +1,6 @@
 package dw.html.vue
 
-import kotlinx.browser.document
-import org.w3c.dom.HTMLElement
 import kotlinx.html.TagConsumer
-import kotlinx.html.dom.create
 import kotlinx.html.stream.appendHTML
 
 fun <T>create(block: T.() -> Unit): T {
@@ -15,18 +12,18 @@ fun component(block: Component.() -> Unit): Component {
 }
 
 fun defineCustomElement(block: Component.() -> Unit): () -> dynamic {
-    return defineCustomElement(component(block))
+    return Vue.defineCustomElement(component(block))
 }
 
 fun createApp(block: Component.() -> Unit): App {
-    return createApp(component(block))
+    return Vue.createApp(component(block))
 }
 
-fun buildTemplate(block: TagConsumer<*>.() -> Unit): HTMLElement {
-    val html = document.create
-    block(html)
-    return html.finalize()
-//    return buildString {
-//        block(appendHTML(prettyPrint = false))
-//    }
+fun buildTemplate(block: TagConsumer<*>.() -> Unit): String {
+//    val html = document.create
+//    block(html)
+//    return html.finalize()
+    return buildString {
+        block(appendHTML(prettyPrint = false))
+    }
 }
