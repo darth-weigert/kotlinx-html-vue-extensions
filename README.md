@@ -180,7 +180,7 @@ It uses kotlinpoet to generate the Ext.kt file.
 To view test coverage, run:
 
 ```shell
-./gradlew clean build allTests jacocoTestReport
+./gradlew clean build allTests koverHtmlReport
 ```
 
 And the reports will be available at:
