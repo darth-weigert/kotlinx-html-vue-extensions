@@ -28,6 +28,18 @@ class ExtTest {
                 "<p v-else=\"\">Third</p>"
     }
 
+    @Test
+    fun vueOnMouseOverMouseOut() {
+        val result = htmlString {
+            input {
+                vueOn.mouse.over("mouseOverHandler")
+                vueOn.mouse.out("mouseOutHandler")
+            }
+        }
+
+        result shouldBe "<input v-on:mouseover=\"mouseOverHandler\" v-on:mouseout=\"mouseOutHandler\">"
+    }
+
     private fun htmlString(block: TagConsumer<*>.() -> Unit): String {
         return buildString {
             block(appendHTML(prettyPrint = false))

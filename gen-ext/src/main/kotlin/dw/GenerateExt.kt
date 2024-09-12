@@ -11,6 +11,8 @@ import dw.Names.vueOnClickClass
 import dw.Names.vueOnEventClass
 import dw.Names.vueOnFocusClass
 import dw.Names.vueOnKeyClass
+import dw.Names.vueOnMouseClass
+import dw.Names.vueOnMouseEventClass
 import dw.Names.vueOnScrollClass
 import dw.Names.vueOnSubmitClass
 import java.nio.file.FileSystems
@@ -30,6 +32,8 @@ object Names {
     val vueOnBlurClass = ClassName(packageName, "VueOnBlur")
     val vueOnFocusClass = ClassName(packageName, "VueOnFocus")
     val vueModelClass = ClassName(packageName, "VueModel")
+    val vueOnMouseClass = ClassName(packageName, "VueOnMouse")
+    val vueOnMouseEventClass = ClassName(packageName, "VueOnMouseEvent")
 }
 
 fun FileSpec.Builder.createHtmlTagMethod(name: String, vueAttribute: String = name): FileSpec.Builder {
@@ -73,6 +77,19 @@ fun TypeSpec.Builder.createKeyedSetter(prefix: String): TypeSpec.Builder {
             .addStatement("tag.attributes[\"%L:\$key\"] = statement", prefix)
             .build()
     )
+}
+
+fun TypeSpec.Builder.createDslGetter(name: String, type: ClassName): TypeSpec.Builder {
+    return this
+        .addProperty(
+            PropertySpec.builder(name, type)
+                .getter(
+                    FunSpec.getterBuilder()
+                        .addStatement("return %T(tag)", type)
+                        .build()
+                )
+                .build()
+        )
 }
 
 fun TypeSpec.Builder.createDslGetterAndFun(name: String, type: ClassName): TypeSpec.Builder {
@@ -272,6 +289,7 @@ fun main(args: Array<String>) {
                             .createDslGetterAndFun("keyDown", "keydown", vueOnKeyClass)
                             .createDslGetterAndFun("blur", vueOnBlurClass)
                             .createDslGetterAndFun("focus", vueOnFocusClass)
+                            .createDslGetter("mouse", vueOnMouseClass)
                             .build()
             )
             .addType(
@@ -405,6 +423,22 @@ fun main(args: Array<String>) {
             )
             .addType(
                     builderOnEvent(vueOnFocusClass, "focus")
+                            .build()
+            )
+            .addType(
+                    TypeSpec.classBuilder(vueOnMouseClass)
+                            .createConstructorWithTag()
+                            .createDslGetterAndFun("down", "mousedown", vueOnMouseEventClass)
+                            .createDslGetterAndFun("enter", "mouseenter", vueOnMouseEventClass)
+                            .createDslGetterAndFun("leave", "mouseleave", vueOnMouseEventClass)
+                            .createDslGetterAndFun("move", "mousemove", vueOnMouseEventClass)
+                            .createDslGetterAndFun("out", "mouseout", vueOnMouseEventClass)
+                            .createDslGetterAndFun("over", "mouseover", vueOnMouseEventClass)
+                            .createDslGetterAndFun("up", "mouseup", vueOnMouseEventClass)
+                            .build()
+            )
+            .addType(
+                    builderOnEvent(vueOnMouseEventClass)
                             .build()
             )
             .build()

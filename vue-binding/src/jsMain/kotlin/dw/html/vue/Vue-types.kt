@@ -121,7 +121,7 @@ external interface App {
 //    use<Options>(plugin: Plugin<Options>, options: Options): this;
 //    mixin(mixin: ComponentOptions): this;
 //    component(name: string): Component | undefined;
-//    component(name: string, component: Component): this;
+    fun component(name: String, component: Component): App
 //    directive(name: string): Directive | undefined;
 //    directive(name: string, directive: Directive): this;
     fun <HostElement> mount(rootContainer: HostElement, isHydrate: Boolean = definedExternally, isSVG: Boolean = definedExternally): ComponentPublicInstance

@@ -13,7 +13,7 @@ class VueTest {
     @Test
     fun helloWorld() {
         val msg = "new message"
-        val component = create<Component> {
+        val component = component {
             props = arrayOf("msg")
             template = buildTemplate {
                 div {
@@ -33,7 +33,7 @@ class VueTest {
     @Test
     fun forLoop() {
         val list = arrayOf("A", "B", "C")
-        val component = create<Component> {
+        val component = component {
             props = arrayOf("list")
             template = buildTemplate {
                 p {
