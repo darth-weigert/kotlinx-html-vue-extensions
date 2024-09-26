@@ -96,7 +96,7 @@ kotlin {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().all {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().all {
     when(name) {
         "compileCommonMainKotlinMetadata" -> dependsOn(generateExtCode)
         "compileKotlinJs" -> dependsOn(generateExtCode/*, generateVueBindingsCode*/)
