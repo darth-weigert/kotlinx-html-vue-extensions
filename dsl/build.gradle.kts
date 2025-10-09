@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.kotlinx.kover")
@@ -19,17 +21,17 @@ val generatedCommonCodePath = layout.buildDirectory.dir("generated-sources/commo
 
 val generateExtCode by tasks.registering(JavaExec::class) {
     group = "codeGenerate"
+    outputs.dir(generatedCommonCodePath)
     classpath = project(":gen-ext").sourceSets["main"].runtimeClasspath
     mainClass.set("dw.GenerateExtKt")
-    outputs.dir(generatedCommonCodePath)
     args = listOf("--output", generatedCommonCodePath.get().asFile.toString())
 }
 
 kotlin {
     jvmToolchain(8)
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.fromTarget("1.8"))
         }
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()

@@ -13,10 +13,10 @@ project(":vue-binding").name = "kotlinx-html-vue-bindings"
 pluginManagement {
     plugins {
         base
-        kotlin("multiplatform") version "2.0.20"
-        kotlin("jvm") version "2.0.20"
-        id("org.jetbrains.kotlinx.kover") version "0.9.0-RC"
+        kotlin("multiplatform") version "2.2.20"
+        kotlin("jvm") version "2.2.20"
+        id("org.jetbrains.kotlinx.kover") version "0.9.2"
         id("maven-publish")
-        id("org.ajoberstar.grgit") version "5.2.0"
+        id("org.ajoberstar.grgit") version "5.3.3"
     }
 }

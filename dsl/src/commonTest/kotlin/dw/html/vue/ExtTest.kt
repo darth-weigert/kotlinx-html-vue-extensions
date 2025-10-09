@@ -40,6 +40,41 @@ class ExtTest {
         result shouldBe "<input v-on:mouseover=\"mouseOverHandler\" v-on:mouseout=\"mouseOutHandler\">"
     }
 
+    @Test
+    fun vueOnMouseClick() {
+        val result = htmlString {
+            button {
+                vueOn.click("clickHandler")
+                +"Click me!"
+            }
+        }
+
+        result shouldBe "<button v-on:click=\"clickHandler\">Click me!</button>"
+    }
+
+    @Test
+    fun vueOnSubmit() {
+        val result = htmlString {
+            form {
+                vueOn.submit("submitHandler")
+            }
+        }
+
+        result shouldBe "<form v-on:submit=\"submitHandler\"></form>"
+    }
+
+    @Test
+    fun vueOnKeyUpKeyDown() {
+        val result = htmlString {
+            input {
+                vueOn.keyUp("keyUpHandler")
+                vueOn.keyDown("keyDownHandler")
+            }
+        }
+
+        result shouldBe "<input v-on:keyup=\"keyUpHandler\" v-on:keydown=\"keyDownHandler\">"
+    }
+
     private fun htmlString(block: TagConsumer<*>.() -> Unit): String {
         return buildString {
             block(appendHTML(prettyPrint = false))

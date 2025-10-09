@@ -1,6 +1,11 @@
 package dw.html.vue
 
-external interface Record<K, T>
+external interface Record<K, T> {
+    operator fun get(key: Any): T
+    operator fun set(key: Any, value: T?)
+}
+
+typealias Data = Record<String, Any>
 
 external interface Directive
 
@@ -10,14 +15,137 @@ typealias VoidFunction = () -> Unit
 
 typealias ComputedGetter<T> = () -> T
 
-external class DebuggerEvent {
-    var effect: Any
-    var target: Any
-    var type: String
-    var key: Any
-    var newValue: Any?
-    var oldValue: Any?
-    var oldTarget: Any?
+typealias WatchEffect = (onCleanup: OnCleanup) -> Unit
+
+typealias OnCleanup = (cleanupFun: () -> Unit) -> Unit
+
+typealias Slot<T> = (args: dynamic) -> Array<VNode>
+external interface InternalSlots {
+    operator fun get(name: String): Slot<Any>?
+    operator fun set(name: String, value: Slot<Any>?)
+}
+external interface Slots {
+    operator fun get(name: String): Slot<Any>?
+}
+external interface SchedulerJob {
+    var id: Number?
+    var pre: Boolean?
+    var active: Boolean?
+    var computed: Boolean?
+    /**
+     * Indicates whether the effect is allowed to recursively trigger itself
+     * when managed by the scheduler.
+     *
+     * By default, a job cannot trigger itself because some built-in method calls,
+     * e.g. Array.prototype.push actually performs reads as well (#1740) which
+     * can lead to confusing infinite loops.
+     * The allowed cases are component update functions and watch callbacks.
+     * Component update functions may update child component props, which in turn
+     * trigger flush: "pre" watch callbacks that mutates state that the parent
+     * relies on (#1801). Watch callbacks doesn't track its dependencies so if it
+     * triggers itself again, it's likely intentional and it is the user's
+     * responsibility to perform recursive state mutation that eventually
+     * stabilizes (#1727).
+     */
+    var allowRecurse: Boolean?
+    /**
+     * Attached by renderer.ts when setting up a component's render effect
+     * Used to obtain component information when reporting max recursive updates.
+     * dev only.
+     */
+    var ownerInstance: ComponentInternalInstance?
+}
+
+external interface ComponentInternalInstance {
+    var uid: Number
+    var type: dynamic // ConcreteComponent
+    var parent: ComponentInternalInstance?
+    var root: ComponentInternalInstance
+    var appContext: dynamic // AppContext
+    /**
+     * Vnode representing this component in its parent's vdom tree
+     */
+    var vnode: VNode
+    /* removed internal: next */
+    /**
+     * Root vnode of this component's own vdom tree
+     */
+    var subTree: VNode
+    /**
+     * Render effect instance
+     */
+    var effect: ReactiveEffect<Any>
+    /**
+     * Bound effect runner to be passed to schedulers
+     */
+    var update: SchedulerJob
+    /* removed internal: render */
+    /* removed internal: ssrRender */
+    /* removed internal: provides */
+    /* removed internal: scope */
+    /* removed internal: accessCache */
+    /* removed internal: renderCache */
+    /* removed internal: components */
+    /* removed internal: directives */
+    /* removed internal: filters */
+    /* removed internal: propsOptions */
+    /* removed internal: emitsOptions */
+    /* removed internal: inheritAttrs */
+    /* removed internal: isCE */
+    /* removed internal: ceReload */
+    var proxy: ComponentPublicInstance?
+    var exposed: Record<String, Any>?
+    var exposeProxy: Record<String, Any>?
+    /* removed internal: withProxy */
+    /* removed internal: ctx */
+    var data: Data
+    var props: Data
+    var attrs: Data
+    var slots: InternalSlots
+    var refs: Data
+    var emit: dynamic // EmitFn
+    var attrsProxy: Data?
+    var slotsProxy: Slots?
+    /* removed internal: emitted */
+    /* removed internal: propsDefaults */
+    /* removed internal: setupState */
+    /* removed internal: devtoolsRawSetupState */
+    /* removed internal: setupContext */
+    /* removed internal: suspense */
+    /* removed internal: suspenseId */
+    /* removed internal: asyncDep */
+    /* removed internal: asyncResolved */
+    var isMounted: Boolean
+    var isUnmounted: Boolean
+    var isDeactivated: Boolean
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* removed internal: f */
+    /* removed internal: n */
+    /* removed internal: ut */
+}
+
+external interface WatchOptionsBase : DebuggerOptions {
+    var flush: String? // 'pre' | 'post' | 'sync';
+}
+
+typealias WatchStopHandle = () -> Unit
+
+external interface DebuggerOptions {
+    var onTrack: ((event: DebuggerEvent) -> Unit)?
+    var onTrigger: ((event: DebuggerEvent) -> Unit)?
 }
 
 typealias DebuggerHook = (e: DebuggerEvent) -> Unit
@@ -66,7 +194,8 @@ external interface RuntimeCompilerOptions {
 }
 
 external interface ComponentOptionsBase: LegacyOptions {
-    var setup: (() -> Any)?
+    // setup?: (this: void, props: LooseRequired<Props & Prettify<UnwrapMixinsType<IntersectionMixin<Mixin> & IntersectionMixin<Extends>, 'P'>>>, ctx: SetupContext<E, S>) => Promise<RawBindings> | RawBindings | RenderFunction | void;
+    var setup: ((props: dynamic, ctx: Any) -> Any)?
     var name: String?
     var template: Any?
     var render: Any?
@@ -81,7 +210,7 @@ external interface ComponentOptionsBase: LegacyOptions {
 }
 
 external interface FunctionalComponent {
-    var props: Any?
+    var props: dynamic
     var emits: Any?
     var slots: Any?
     var inheritAttrs: Boolean?
